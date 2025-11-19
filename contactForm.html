@@ -18,6 +18,12 @@
       <label for="tutor">Tuteur</label>
       <select id="tutor" required>
         <option value="">- Choisir un tuteur -</option>
+        <option value="">Marie Tremblay</option>
+        <option value="">Pierre Gagnon</option>
+        <option value="">Sophie Bouchard</option>
+        <option value="">Jean Pelletier</option>
+        <option value="">Isabelle LeBlanc</option>
+        <option value="">Marc Côté</option>
       </select>
 
       <label for="subject">Sujet</label>
@@ -26,8 +32,12 @@
       <label for="message">Message (max 500 caractères)</label>
       <textarea id="message" maxlength="500" required></textarea>
 
-      <button type="submit">Envoyer</button>
+      <!-- Lorsque l'étudiant clique sur envoyer après avoir complété le formulaire la requête 
+           va déclencher un POST pour insérer le message dans la base de donnée -> dans la table (message)
+      -->
+      <button type="submit">Envoyer</button> 
+      git
     </form>
-    <script src="tuteur.js"></script>
+    <!-- Utilisation de la base de donnée non nécéssaire alors on continue en statique et on énonce les fonctions et les actions -->
   </body>
 </html>
