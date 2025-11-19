@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form id="contactForm" class="contact-form">
+      <h2>Contacter un tuteur</h2>
+
+      <label for="name">Nom complet</label>
+      <input type="text" id="name" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required />
+
+      <label for="tutor">Tuteur</label>
+      <select id="tutor" required>
+        <option value="">- Choisir un tuteur -</option>
+      </select>
+
+      <label for="subject">Sujet</label>
+      <input type="text" id="subject" required />
+
+      <label for="message">Message (max 500 caractères)</label>
+      <textarea id="message" maxlength="500" required></textarea>
+
+      <button type="submit">Envoyer</button>
+    </form>
+    <script src="tuteur.js"></script>
+  </body>
+</html>
