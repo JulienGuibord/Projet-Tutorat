@@ -59,7 +59,7 @@ CREATE TABLE rendez_vous (
     date_rdv DATE NOT NULL,
     heure_debut TIME NOT NULL,
     heure_fin TIME NOT NULL,
-    statut ENUM('disponible', 'reserve', 'annule', 'termine') DEFAULT 'reserve',
+    statut ENUM('reserve', 'annule', 'termine') DEFAULT 'reserve',
     commentaire TEXT,
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -75,6 +75,31 @@ CREATE TABLE rendez_vous (
     INDEX idx_tuteur (id_tuteur),
     INDEX idx_cours (id_cours)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Création de la table DISPONIBILITÉS
+-- ====================================================================
+-- Table contenant les informations sur les disponibilités du tuteur
+CREATE TABLE disponibilites (
+    id_dispo INT AUTO_INCREMENT PRIMARY KEY,
+    id_tuteur INT NOT NULL,
+    id_cours INT NOT NULL,
+    date_dispo DATE NOT NULL,
+    heure_debut TIME NOT NULL,
+    heure_fin TIME NOT NULL,
+    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_modification TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- Clés étrangères
+    FOREIGN KEY (id_tuteur) REFERENCES tuteurs(id_tuteur) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_cours) REFERENCES cours(id_cours) ON DELETE CASCADE ON UPDATE CASCADE,
+
+    -- Index pour améliorer les performances des recherches
+    INDEX idx_tuteur (id_tuteur),
+    INDEX idx_cours (id_cours),
+    INDEX idx_date_dispo (date_dispo)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ====================================================================
 -- Étape 6 : Insertion des TUTEURS (données d'exemple)
@@ -147,3 +172,29 @@ INSERT INTO rendez_vous (id_etudiant, id_tuteur, id_cours, date_rdv, heure_debut
 (5, 3, 6, '2025-11-14', '13:00:00', '14:30:00', 'reserve', 'Préparation laboratoire sur les réactions acido-basiques'),
 (5, 1, 11, '2025-11-17', '11:00:00', '12:00:00', 'reserve', 'Exercices sur les distributions de probabilité');
 
+-- ====================================================================
+-- Étape 10 : Insertion de DISPONIBILITÉS (données d'exemple)
+-- ====================================================================
+INSERT INTO disponibilites (id_tuteur, id_cours, date_dispo, heure_debut, heure_fin) VALUES
+-- Tuteur 1 : Marie Tremblay (Mathématiques)
+(1, 1, '2025-11-18', '09:00:00', '11:00:00'),
+(1, 11, '2025-11-19', '13:00:00', '15:00:00'),
+
+-- Tuteur 2 : Pierre Gagnon (Français)
+(2, 4, '2025-11-18', '10:00:00', '12:00:00'),
+(2, 3, '2025-11-20', '14:00:00', '16:00:00'),
+
+-- Tuteur 3 : Sophie Bouchard (Biologie / Chimie)
+(3, 5, '2025-11-21', '09:30:00', '11:00:00'),
+(3, 6, '2025-11-22', '13:30:00', '15:30:00'),
+
+-- Tuteur 4 : Jean Pelletier (Informatique)
+(4, 7, '2025-11-18', '08:00:00', '10:00:00'),
+(4, 8, '2025-11-23', '10:30:00', '12:30:00'),
+
+-- Tuteur 5 : Isabelle Leblanc (Histoire)
+(5, 9, '2025-11-19', '11:00:00', '13:00:00'),
+
+-- Tuteur 6 : Marc Côté (Physique / Math)
+(6, 10, '2025-11-20', '09:00:00', '11:00:00'),
+(6, 1,  '2025-11-21', '14:00:00', '16:00:00');
