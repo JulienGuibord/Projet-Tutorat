@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
-  <body>
+  <body style="text-align: center">
     <form id="contactForm" class="contact-form">
-      <h2>Contacter un tuteur</h2>
-
-      <label for="name">Nom complet</label>
+      <h1>Contacter un tuteur</h1>
+      <p>Besoin d'aide, d'un conseil ou d'un accompagnement personnalisé ? <br>
+         Remplissez le formulaire ci-dessous pour entrer en contact avec l'un de nos tuteurs.
+      </p>
+      <br>
+      <label for="name">Nom complet: </label>
       <input type="text" id="name" required />
-
-      <label for="email">Email</label>
+      <br>
+      <br>
+      <label for="email">Email: </label>
       <input type="email" id="email" required />
-
+      <br>
+      <br>
       <label for="tutor">Tuteur</label>
       <select id="tutor" required>
-        <option value="">- Choisir un tuteur -</option>
+        <option value="">-- Choisir un tuteur --</option>
         <option value="">Marie Tremblay</option>
         <option value="">Pierre Gagnon</option>
         <option value="">Sophie Bouchard</option>
@@ -25,19 +30,26 @@
         <option value="">Isabelle LeBlanc</option>
         <option value="">Marc Côté</option>
       </select>
-
-      <label for="subject">Sujet</label>
+      <br>
+      <br>
+      <label for="subject">Sujet: </label>
       <input type="text" id="subject" required />
-
+      <br>
+      <br>
       <label for="message">Message (max 500 caractères)</label>
-      <textarea id="message" maxlength="500" required></textarea>
-
+      <br>
+      <textarea id="message" maxlength="500" rows="10" cols="40" required></textarea>
+    </form>
+    <br>
       <!-- Lorsque l'étudiant clique sur envoyer après avoir complété le formulaire la requête 
            va déclencher un POST pour insérer le message dans la base de donnée -> dans la table (message)
       -->
-      <button type="submit">Envoyer</button> 
-      git
-    </form>
-    <!-- Utilisation de la base de donnée non nécéssaire alors on continue en statique et on énonce les fonctions et les actions -->
+     <button onclick="redirectToConfirmationPage()">Envoyer</button>
+      <script>
+        function redirectToConfirmationPage() {
+            window.location.href = 'confirmationForm.html';
+          }
+      </script>
+    <!-- Utilisation de la base de donnée non nécéssaire alors on continue en statique et on énonce les fonctions et les actions en commentaire-->
   </body>
 </html>
