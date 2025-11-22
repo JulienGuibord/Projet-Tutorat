@@ -5,6 +5,7 @@
 <title>Étudiant – Demande de rendez-vous (Mock)</title>
 <link rel="stylesheet" href="style.css">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+
 <style>
   body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
   .card { background:white; padding:20px; border-radius:12px; max-width:600px; margin:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
@@ -16,7 +17,9 @@
   .rendezvous-card{background:white;padding:15px;border-radius:10px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
 </style>
 </head>
+
 <body>
+
 
 <div class="card" id="login-card">
   <h1>Connexion Étudiant</h1>
@@ -45,6 +48,7 @@
 </div>
 
 <script>
+
 
 const SERVICES = [
   {
@@ -84,12 +88,20 @@ function login() {
 
 function remplirServices() {
   const select = document.getElementById("service");
+  select.innerHTML = `<option value="">-- Sélectionner un service --</option>`;
+
   SERVICES.forEach(s => {
     const opt = document.createElement("option");
     opt.value = s.id;
     opt.textContent = `${s.nom} (Tuteur : ${s.tuteur})`;
     select.appendChild(opt);
   });
+}
+
+function ajouterHeureFin(dateStr, dureeMinutes = 60) {
+  const d = new Date(dateStr.replace(" ", "T"));
+  d.setMinutes(d.getMinutes() + dureeMinutes);
+  return d.toISOString().slice(0, 16).replace("T", " ");
 }
 
 function loadSlots() {
@@ -101,27 +113,33 @@ function loadSlots() {
   if (!id) return;
 
   const srv = SERVICES.find(s => s.id === id);
-  srv.slots.forEach(s => {
+
+  srv.slots.forEach(debut => {
+    const fin = ajouterHeureFin(debut, 60);
+
     const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s.replace(" ", " à ");
+    opt.value = `${debut}||${fin}`;
+    opt.textContent =
+      `${debut.replace(" ", " à ")} → ${fin.split(" ")[1]}`;
     slotSelect.appendChild(opt);
   });
 }
 
 function prendreRdv() {
   const service = document.getElementById("service").value;
-  const slot = document.getElementById("slot").value;
+  const slotVal = document.getElementById("slot").value;
 
-  if (!service || !slot) return alert("Veuillez choisir un service et un créneau.");
+  if (!service || !slotVal) return alert("Veuillez choisir un service et un créneau.");
 
+  const [debut, fin] = slotVal.split("||");
   const srv = SERVICES.find(s => s.id === service);
 
   const demande = {
     etudiant: student,
     service: srv.nom,
     tuteur: srv.tuteur,
-    slot: slot
+    debut,
+    fin
   };
 
   demandes.push(demande);
@@ -141,12 +159,14 @@ function afficherDemandes() {
       <h3>Rendez-vous confirmé</h3>
       <p><strong>Service :</strong> ${d.service}</p>
       <p><strong>Tuteur :</strong> ${d.tuteur}</p>
-      <p><strong>Date :</strong> ${d.slot.replace(" ", " à ")}</p>
+      <p><strong>Début :</strong> ${d.debut.replace(" ", " à ")}</p>
+      <p><strong>Fin :</strong> ${d.fin.replace(" ", " à ")}</p>
       <p><strong>Étudiant :</strong> ${d.etudiant}</p>
     `;
     list.appendChild(card);
   });
 }
+
 </script>
 
 </body>
