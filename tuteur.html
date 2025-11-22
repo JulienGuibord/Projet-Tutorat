@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Maquette — Disponibilités (Mock)</title>
+
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Créer une disponibilité</h1>
+    <p class="small">Ajouter vos disponibilités!</p>
+
+    <form id="form-dispo" onsubmit="return false;">
+      <h2>Créer une disponibilité</h2>
+
+      <div class="row">
+        <div class="col">
+          <label for="id_tuteur">Tuteur</label>
+          <select id="id_tuteur" required></select>
+        </div>
+
+        <div class="col">
+          <label for="id_cours">Cours</label>
+          <select id="id_cours" required></select>
+        </div>
+
+        <div class="col">
+          <label for="date_dispo">Date</label>
+          <input type="date" id="date_dispo" required />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px;">
+        <div class="col">
+          <label for="heure_debut">Heure de début</label>
+          <input type="time" id="heure_debut" required />
+        </div>
+        <div class="col">
+          <label for="heure_fin">Heure de fin</label>
+          <input type="time" id="heure_fin" required />
+        </div>
+        <div class="col">
+          <label for="note">Note (optionnel)</label>
+          <input type="text" id="note" placeholder="Ex: Zoom, Salle B12..." />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn-add" class="primary">Ajouter la disponibilité</button>
+        <button id="btn-reset" class="ghost" type="button">Réinitialiser le formulaire</button>
+        <div style="margin-left:auto" class="controls">
+          <button id="btn-export" class="ghost" type="button" title="Exporter en JSON">Exporter JSON</button>
+          <button id="btn-clear" class="ghost" type="button" title="Supprimer toutes les disponibilités">Tout supprimer</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div id="liste-card" class="card">
+    <h2>Disponibilités créées</h2>
+    <div id="table-container"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+
+const TUTEURS = [
+  { id: "t1", nom: "Dupont", prenom: "Alice" },
+  { id: "t2", nom: "Martin", prenom: "Benoît" },
+  { id: "t3", nom: "Nguyen", prenom: "Linh" }
+];
+
+const COURS = [
+  { id: "c1", code: "INF101", nom: "Introduction à l'informatique" },
+  { id: "c2", code: "MAT101", nom: "Calcul I" },
+  { id: "c3", code: "FR101", nom: "Communication écrite" }
+];
+
+const STORAGE_KEY = "mock_disponibilites_v1";
+let disponibilites = [];
+let editingId = null; 
+
+function $(id){ return document.getElementById(id); }
+function showToast(msg, timeout=2000){
+  const t = $("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=> t.style.display = "none", timeout);
+}
+
+function populateSelects(){
+  const tSel = $("id_tuteur");
+  const cSel = $("id_cours");
+  tSel.innerHTML = `<option value="">-- Sélectionner un tuteur --</option>`;
+  cSel.innerHTML = `<option value="">-- Sélectionner un cours --</option>`;
+  TUTEURS.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t.id;
+    opt.textContent = t.nom + " " + t.prenom;
+    tSel.appendChild(opt);
+  });
+  COURS.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.code + " - " + c.nom;
+    cSel.appendChild(opt);
+  });
+}
+
+function saveToStorage(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(disponibilites));
+}
+function loadFromStorage(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){ try{ disponibilites = JSON.parse(raw) || []; }catch(e){ disponibilites = []; } }
+}
+
+function validateForm(data){
+  if(!data.id_tuteur) return "Choisir un tuteur.";
+  if(!data.id_cours) return "Choisir un cours.";
+  if(!data.date_dispo) return "Choisir une date.";
+  if(!data.heure_debut || !data.heure_fin) return "Choisir heure de début et de fin.";
+  if(data.heure_debut >= data.heure_fin) return "L'heure de début doit être avant l'heure de fin.";
+  return null;
+}
+
+function addDisponibilite(d){
+  d.id = "d_" + Date.now() + "_" + Math.floor(Math.random()*1000);
+  disponibilites.push(d);
+  saveToStorage();
+  renderTable();
+  showToast("Disponibilité ajoutée");
+}
+
+function updateDisponibilite(id, updated){
+  const idx = disponibilites.findIndex(x=>x.id===id);
+  if(idx>=0){
+    disponibilites[idx] = {...disponibilites[idx], ...updated};
+    saveToStorage();
+    renderTable();
+    showToast("Disponibilité mise à jour");
+  }
+}
+
+function deleteDisponibilite(id){
+  if(!confirm("Supprimer cette disponibilité ?")) return;
+  disponibilites = disponibilites.filter(x=>x.id!==id);
+  saveToStorage();
+  renderTable();
+  showToast("Supprimé");
+}
+
+function clearAll(){
+  if(!confirm("Supprimer toutes les disponibilités ?")) return;
+  disponibilites = [];
+  saveToStorage();
+  renderTable();
+  showToast("Toutes les disponibilités ont été supprimées");
+}
+
+function findTuteurById(id){ return TUTEURS.find(t=>t.id===id) || {nom:"--",prenom:""}; }
+function findCoursById(id){ return COURS.find(c=>c.id===id) || {code:"--",nom:""}; }
+
+function renderTable(){
+  const container = $("table-container");
+  if(disponibilites.length === 0){
+    container.innerHTML = `<div class="empty">Aucune disponibilité. Ajoute-en une via le formulaire ci-dessus.</div>`;
+    return;
+  }
+
+  disponibilites.sort((a,b)=>{
+    const da = a.date_dispo + " " + a.heure_debut;
+    const db = b.date_dispo + " " + b.heure_debut;
+    return da.localeCompare(db);
+  });
+
+  let html = `<table>
+    <thead><tr>
+      <th>Tuteur</th><th>Cours</th><th>Date</th><th>Heures</th><th>Note</th><th>Actions</th>
+    </tr></thead><tbody>`;
+
+  disponibilites.forEach(d => {
+    const t = findTuteurById(d.id_tuteur);
+    const c = findCoursById(d.id_cours);
+    html += `<tr>
+      <td>${t.nom} ${t.prenom}</td>
+      <td>${c.code} — ${c.nom}</td>
+      <td>${d.date_dispo}</td>
+      <td>${d.heure_debut} → ${d.heure_fin}</td>
+      <td class="small">${d.note || ""}</td>
+      <td>
+        <button onclick="editDisponibilite('${d.id}')" class="ghost">Modifier</button>
+        <button onclick="deleteDisponibilite('${d.id}')" class="ghost danger">Supprimer</button>
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function editDisponibilite(id){
+  const d = disponibilites.find(x=>x.id===id);
+  if(!d) return showToast("Disponibilité introuvable");
+  editingId = id;
+  $("id_tuteur").value = d.id_tuteur;
+  $("id_cours").value = d.id_cours;
+  $("date_dispo").value = d.date_dispo;
+  $("heure_debut").value = d.heure_debut;
+  $("heure_fin").value = d.heure_fin;
+  $("note").value = d.note || "";
+  $("btn-add").textContent = "Enregistrer les modifications";
+  showToast("Mode édition activé");
+}
+
+// --- handlers formulaire ---
+function resetForm(){
+  editingId = null;
+  $("form-dispo").reset();
+  $("btn-add").textContent = "Ajouter la disponibilité";
+}
+
+function onSubmitAdd(){
+  const payload = {
+    id_tuteur: $("id_tuteur").value,
+    id_cours: $("id_cours").value,
+    date_dispo: $("date_dispo").value,
+    heure_debut: $("heure_debut").value,
+    heure_fin: $("heure_fin").value,
+    note: $("note").value.trim()
+  };
+
+  const err = validateForm(payload);
+  if(err){ return showToast(err, 3000); }
+
+  if(editingId){
+    updateDisponibilite(editingId, payload);
+  } else {
+    addDisponibilite(payload);
+  }
+  resetForm();
+}
+
+function exportJSON(){
+  const dataStr = JSON.stringify(disponibilites, null, 2);
+  const blob = new Blob([dataStr], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "disponibilites_mock.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function init(){
+  populateSelects();
+  loadFromStorage();
+  renderTable();
+
+  $("btn-add").addEventListener("click", onSubmitAdd);
+  $("btn-reset").addEventListener("click", resetForm);
+  $("btn-clear").addEventListener("click", clearAll);
+  $("btn-export").addEventListener("click", exportJSON);
+}
+
+window.addDisponibilite = addDisponibilite;
+window.editDisponibilite = editDisponibilite;
+window.deleteDisponibilite = deleteDisponibilite;
+
+init();
+</script>
+</body>
+</html>
