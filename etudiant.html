@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Étudiant – Demande de rendez-vous (Mock)</title>
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
+  .card { background:white; padding:20px; border-radius:12px; max-width:600px; margin:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+  h1,h2 { margin-top:0; }
+  label{font-weight:bold; display:block; margin-top:12px;}
+  select,input,button{padding:8px; margin-top:5px; width:100%; border-radius:6px; border:1px solid #ccc;}
+  button{ cursor:pointer; background:#1976d2; border:0; color:white; font-weight:bold; margin-top:18px;}
+  .hidden{display:none;}
+  .rendezvous-card{background:white;padding:15px;border-radius:10px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+</style>
+</head>
+<body>
+
+<div class="card" id="login-card">
+  <h1>Connexion Étudiant</h1>
+  <label for="student_id">Identifiant étudiant :</label>
+  <input type="text" id="student_id" placeholder="ex: etu1234" />
+
+  <button onclick="login()">Se connecter</button>
+</div>
+
+<div class="card hidden" id="app-card">
+  <h1>Demande de rendez-vous</h1>
+
+  <label for="service">Choisir un service :</label>
+  <select id="service" onchange="loadSlots()">
+    <option value="">-- Sélectionner un service --</option>
+  </select>
+
+  <label for="slot">Créneau horaire disponible :</label>
+  <select id="slot">
+    <option value="">-- Sélectionner un créneau --</option>
+  </select>
+
+  <button onclick="prendreRdv()">Prendre rendez-vous</button>
+
+  <div id="rdv-list"></div>
+</div>
+
+<script>
+
+const SERVICES = [
+  {
+    id: "s1",
+    nom: "Aide en Mathématiques",
+    tuteur: "Alice Martin",
+    slots: ["2025-05-12 10:00", "2025-05-12 13:00", "2025-05-13 09:00"]
+  },
+  {
+    id: "s2",
+    nom: "Support Programmation",
+    tuteur: "Ben Benjamin",
+    slots: ["2025-05-14 11:00", "2025-05-14 15:00"]
+  },
+  {
+    id: "s3",
+    nom: "Rédaction et Français",
+    tuteur: "Line Parent",
+    slots: ["2025-05-12 14:00", "2025-05-15 10:30"]
+  }
+];
+
+let student = null;
+let demandes = [];
+
+function login() {
+  const id = document.getElementById("student_id").value.trim();
+  if (!id) return alert("Veuillez entrer votre identifiant.");
+
+  student = id;
+
+  document.getElementById("login-card").classList.add("hidden");
+  document.getElementById("app-card").classList.remove("hidden");
+
+  remplirServices();
+}
+
+function remplirServices() {
+  const select = document.getElementById("service");
+  SERVICES.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = `${s.nom} (Tuteur : ${s.tuteur})`;
+    select.appendChild(opt);
+  });
+}
+
+function loadSlots() {
+  const id = document.getElementById("service").value;
+  const slotSelect = document.getElementById("slot");
+
+  slotSelect.innerHTML = `<option value="">-- Sélectionner un créneau --</option>`;
+
+  if (!id) return;
+
+  const srv = SERVICES.find(s => s.id === id);
+  srv.slots.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s.replace(" ", " à ");
+    slotSelect.appendChild(opt);
+  });
+}
+
+function prendreRdv() {
+  const service = document.getElementById("service").value;
+  const slot = document.getElementById("slot").value;
+
+  if (!service || !slot) return alert("Veuillez choisir un service et un créneau.");
+
+  const srv = SERVICES.find(s => s.id === service);
+
+  const demande = {
+    etudiant: student,
+    service: srv.nom,
+    tuteur: srv.tuteur,
+    slot: slot
+  };
+
+  demandes.push(demande);
+  afficherDemandes();
+
+  alert("Rendez-vous confirmé !");
+}
+
+function afficherDemandes() {
+  const list = document.getElementById("rdv-list");
+  list.innerHTML = "";
+
+  demandes.forEach(d => {
+    const card = document.createElement("div");
+    card.className = "rendezvous-card";
+    card.innerHTML = `
+      <h3>Rendez-vous confirmé</h3>
+      <p><strong>Service :</strong> ${d.service}</p>
+      <p><strong>Tuteur :</strong> ${d.tuteur}</p>
+      <p><strong>Date :</strong> ${d.slot.replace(" ", " à ")}</p>
+      <p><strong>Étudiant :</strong> ${d.etudiant}</p>
+    `;
+    list.appendChild(card);
+  });
+}
+</script>
+
+</body>
+</html>
