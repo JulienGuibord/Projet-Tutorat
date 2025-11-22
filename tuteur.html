@@ -170,7 +170,7 @@ function findCoursById(id){ return COURS.find(c=>c.id===id) || {code:"--",nom:""
 function renderTable(){
   const container = $("table-container");
   if(disponibilites.length === 0){
-    container.innerHTML = `<div class="empty">Aucune disponibilité. Ajoute-en une via le formulaire ci-dessus.</div>`;
+    container.innerHTML = `<div class="empty">Aucune disponibilité. Ajoutes-en une via le formulaire ci-dessus.</div>`;
     return;
   }
 
