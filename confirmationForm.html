@@ -12,6 +12,22 @@
       Votre tuteur vous répondra dans les plus brefs délais afin de vous guider
       et vous accompagner dans votre apprentissage.
     </p>
+    <br>
+    <p id="redirect-message" style="text-align: center">Vous serez automatiquement redirigé vers l'accueil dans 10 secondes...</p>
+
+    <script>
+       let seconds = 10;
+    const message = document.getElementById('redirect-message');
+    const countdown = setInterval(() => {
+      seconds--;
+      if (seconds > -1) {
+        message.textContent = `Vous serez automatiquement redirigé vers l'accueil dans ${seconds} secondes...`;
+      } else {
+        clearInterval(countdown);
+        window.location.href = 'index.html';
+      }
+    }, 1000);
+    </script>
   </body>
 </html>
-<!-- Cette page confirme que le message à été enregistré dans la base de donnée et affiché à l'étudiant une confirmation -->
+<!-- Cette page confirme que le message à été enregistré dans la base de donnée et affiche à l'étudiant qu'il sera redirigé vers la page d'accueil. -->
