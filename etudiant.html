@@ -20,12 +20,10 @@
 
 <body>
 
-
 <div class="card" id="login-card">
   <h1>Connexion Étudiant</h1>
   <label for="student_id">Identifiant étudiant :</label>
   <input type="text" id="student_id" placeholder="ex: etu1234" />
-
   <button onclick="login()">Se connecter</button>
 </div>
 
@@ -48,31 +46,25 @@
 </div>
 
 <script>
-
-
 const SERVICES = [
-  {
-    id: "s1",
-    nom: "Aide en Mathématiques",
-    tuteur: "Alice Martin",
-    slots: ["2025-05-12 10:00", "2025-05-12 13:00", "2025-05-13 09:00"]
-  },
-  {
-    id: "s2",
-    nom: "Support Programmation",
-    tuteur: "Ben Benjamin",
-    slots: ["2025-05-14 11:00", "2025-05-14 15:00"]
-  },
-  {
-    id: "s3",
-    nom: "Rédaction et Français",
-    tuteur: "Line Parent",
-    slots: ["2025-05-12 14:00", "2025-05-15 10:30"]
-  }
+  { id: "s1", nom: "Aide en Mathématiques", tuteur: "Alice Martin", slots: ["2025-05-12 10:00","2025-05-12 13:00","2025-05-13 09:00"] },
+  { id: "s2", nom: "Support Programmation", tuteur: "Ben Benjamin", slots: ["2025-05-14 11:00","2025-05-14 15:00"] },
+  { id: "s3", nom: "Rédaction et Français", tuteur: "Line Parent", slots: ["2025-05-12 14:00","2025-05-15 10:30"] }
 ];
 
 let student = null;
 let demandes = [];
+
+function chargerLocalStorage() {
+  const stored = localStorage.getItem('rendezvous');
+  if (stored) {
+    demandes = JSON.parse(stored);
+  }
+}
+
+function sauvegarderLocalStorage() {
+  localStorage.setItem('rendezvous', JSON.stringify(demandes));
+}
 
 function login() {
   const id = document.getElementById("student_id").value.trim();
@@ -84,6 +76,8 @@ function login() {
   document.getElementById("app-card").classList.remove("hidden");
 
   remplirServices();
+  chargerLocalStorage();
+  afficherDemandes();
 }
 
 function remplirServices() {
@@ -119,8 +113,7 @@ function loadSlots() {
 
     const opt = document.createElement("option");
     opt.value = `${debut}||${fin}`;
-    opt.textContent =
-      `${debut.replace(" ", " à ")} → ${fin.split(" ")[1]}`;
+    opt.textContent = `${debut.replace(/ /g," à ")} → ${fin.split(" ")[1]}`;
     slotSelect.appendChild(opt);
   });
 }
@@ -134,15 +127,10 @@ function prendreRdv() {
   const [debut, fin] = slotVal.split("||");
   const srv = SERVICES.find(s => s.id === service);
 
-  const demande = {
-    etudiant: student,
-    service: srv.nom,
-    tuteur: srv.tuteur,
-    debut,
-    fin
-  };
+  const demande = { etudiant: student, service: srv.nom, tuteur: srv.tuteur, debut, fin };
 
   demandes.push(demande);
+  sauvegarderLocalStorage();
   afficherDemandes();
 
   alert("Rendez-vous confirmé !");
@@ -152,20 +140,23 @@ function afficherDemandes() {
   const list = document.getElementById("rdv-list");
   list.innerHTML = "";
 
-  demandes.forEach(d => {
+  const mesDemandes = demandes.filter(d => d.etudiant === student);
+
+  mesDemandes.forEach(d => {
     const card = document.createElement("div");
     card.className = "rendezvous-card";
     card.innerHTML = `
       <h3>Rendez-vous confirmé</h3>
       <p><strong>Service :</strong> ${d.service}</p>
       <p><strong>Tuteur :</strong> ${d.tuteur}</p>
-      <p><strong>Début :</strong> ${d.debut.replace(" ", " à ")}</p>
-      <p><strong>Fin :</strong> ${d.fin.replace(" ", " à ")}</p>
+      <p><strong>Début :</strong> ${d.debut.replace(/ /g," à ")}</p>
+      <p><strong>Fin :</strong> ${d.fin.replace(/ /g," à ")}</p>
       <p><strong>Étudiant :</strong> ${d.etudiant}</p>
     `;
     list.appendChild(card);
   });
 }
+
 
 </script>
 
