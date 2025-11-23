@@ -27,6 +27,15 @@
         const container = document.getElementById("demandes-container");
         container.innerHTML = "";
 
+        if (demandes.length === 0) {
+          const p = document.createElement("p");
+          p.textContent =
+            "Il n'y a pas de demandes de rendez-vous pour le moment.";
+          p.style.textAlign = "center";
+          container.appendChild(p);
+          return;
+        }
+
         demandes.forEach((d, index) => {
           const div = document.createElement("div");
 
@@ -61,6 +70,20 @@
           container.appendChild(document.createElement("hr"));
         });
       }
+
+        function repondre(index, accepte) {
+        //Cette section va avertir à l'étudiant que la demande à été répondu
+        alert(
+          "L'étudiant a été notifié : demande " +
+            (accepte ? "acceptée" : "refusée")
+        );
+
+        demandes.splice(index, 1);
+
+        sauvegarderLocalStorage();
+        afficherDemandesTuteur();
+      }
+
       afficherDemandesTuteur();
     </script>
   </body>
