@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestion des demandes</title>
+  </head>
+  <body>
+    <br />
+    <h1 style="text-align: center">Gestion des demandes</h1>
+
+    <div id="demandes-container"></div>
+
+    <script>
+      let demandes = [];
+
+      function chargerLocalStorage() {
+        const stored = localStorage.getItem("rendezvous");
+        if (stored) demandes = JSON.parse(stored);
+      }
+
+      function sauvegarderLocalStorage() {
+        localStorage.setItem("rendezvous", JSON.stringify(demandes));
+      }
+
+      function afficherDemandesTuteur() {
+        chargerLocalStorage();
+        const container = document.getElementById("demandes-container");
+        container.innerHTML = "";
+
+        demandes.forEach((d, index) => {
+          const div = document.createElement("div");
+
+          let contenu = `
+      <p>Étudiant : ${d.etudiant}</p>
+      <p>Service : ${d.service}</p>
+      <p>Début : ${d.debut}</p>
+      <p>Fin : ${d.fin}</p>
+    `;
+
+          if (d.reponse) {
+            contenu += `<p>Statut : ${d.reponse}</p>`;
+          } else {
+            contenu += `
+        <button class="accepter">Accepter</button>
+        <button class="refuser">Refuser</button>
+      `;
+          }
+
+          div.innerHTML = contenu;
+          container.appendChild(div);
+
+          if (!d.reponse) {
+            div
+              .querySelector(".accepter")
+              .addEventListener("click", () => repondre(index, true));
+            div
+              .querySelector(".refuser")
+              .addEventListener("click", () => repondre(index, false));
+          }
+
+          container.appendChild(document.createElement("hr"));
+        });
+      }
+      afficherDemandesTuteur();
+    </script>
+  </body>
+</html>
