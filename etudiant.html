@@ -41,6 +41,8 @@
   </select>
 
   <button onclick="prendreRdv()">Prendre rendez-vous</button>
+  <button onclick="window.location.href='historique.html'">Voir mon historique de rendez-vous
+</button>
 
   <div id="rdv-list"></div>
 </div>
@@ -71,6 +73,7 @@ function login() {
   if (!id) return alert("Veuillez entrer votre identifiant.");
 
   student = id;
+  localStorage.setItem("currentStudent", student);
 
   document.getElementById("login-card").classList.add("hidden");
   document.getElementById("app-card").classList.remove("hidden");
