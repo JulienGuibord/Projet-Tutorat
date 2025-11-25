@@ -5,75 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administration Tuto+</title>
   <style>
-    :root {
-      --primary: #1976d2;
-      --danger: #d32f2f;
-      --success: #388e3c;
-      --gray: #555;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      overflow: hidden;
-    }
-    header {
-      background: var(--primary);
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .tabs {
-      display: flex;
-      background: #eee;
-      border-bottom: 1px solid #ddd;
-    }
-    .tab {
-      padding: 15px 25px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .tab.active { background: white; border-bottom: 3px solid var(--primary); }
-    .content {
-      padding: 30px;
-      min-height: 500px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    th { background: #f5f5f5; }
-    button {
-      padding: 8px 12px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    /* bouton */
-    .btn-edit { background: #ff9800; color: white; }
-    .btn-delete { background: var(--danger); color: white; }
-    .btn-toggle { background: #607d8b; color: white; }
-    .btn-add { background: var(--success); color: white; }
-    .form-group {
-      margin: 15px 0;
-    }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-    }
+   
     .hidden { display: none; }
 
     /* Pour apparition du modal */
@@ -92,9 +24,20 @@
 
 <div class="container">
   <header>
+     <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
+
+      <nav>
+        <a href="etudiant.html">Prendre un Rendez-vous</a>
+        <a href="tuteur.html">Pour les Tuteurs</a>
+        <a href="contactForm.html">Contacter un Tuteur</a>
+        <a href="admin.html">Pour les Administrateurs</a>
+      </nav>
     <h1>Administration Tuto+</h1>
     <a href="#" class="logout" onclick="logout()">Déconnexion</a>
+    
   </header>
+
+  
 
   <div class="tabs">
     <div class="tab active" onclick="openTab('comptes')">Comptes utilisateurs</div>
