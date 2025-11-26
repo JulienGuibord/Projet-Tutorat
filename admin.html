@@ -1,309 +1,335 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Administration Tuto+</title>
-  <style>
-   
-    .hidden { display: none; }
-
-    /* Pour apparition du modal */
-    #modal {
-      display: none;
-  }
-
-  #modal:not(.hidden) {
-    display: flex !important;
-  }
-
-
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <header>
-     <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="images/favicon.png" />
+    <title>Administration Tuto+</title>
+  </head>
+  <body>
+    <header>
+      <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
       <nav>
+        <a href="/">Acceuil</a>
         <a href="etudiant.html">Prendre un Rendez-vous</a>
         <a href="tuteur.html">Pour les Tuteurs</a>
         <a href="contactForm.html">Contacter un Tuteur</a>
         <a href="admin.html">Pour les Administrateurs</a>
       </nav>
-    <h1>Administration Tuto+</h1>
-    <a href="#" class="logout" onclick="logout()">Déconnexion</a>
-    
-  </header>
+    </header>
 
-  
-
-  <div class="tabs">
-    <div class="tab active" onclick="openTab('comptes')">Comptes utilisateurs</div>
-    <div class="tab" onclick="openTab('rdv')">Rendez-vous</div>
-  </div>
-
-  <div class="content">
-
-    <!-- Onglet Comptes -->
-    <div id="comptes">
-      <h2>Gestion des comptes</h2>
-      <button class="btn-add" onclick="openAddModal()">+ Ajouter un compte</button>
-
-      <table id="table-comptes">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Rôle</th>
-            <th>Statut</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <!-- Onglet Rendez-vous -->
-    <div id="rdv" class="hidden">
-      <h2>Tous les rendez-vous</h2>
-      <table id="table-rdv">
-        <thead>
-          <tr>
-            <th>Étudiant</th>
-            <th>Service</th>
-            <th>Tuteur</th>
-            <th>Date/Heure</th>
-            <th>Statut</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL AJOUT / MODIFICATION -->
-<div id="modal" class="hidden" 
-     style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
-  <div style="background: white; padding: 20px; width: 400px; border-radius: 8px;">
-    <h3 id="modal-title">Ajouter un compte</h3>
-
-    <div class="form-group">
-      <label>ID</label>
-      <input type="text" id="input-id">
-    </div>
-
-    <div class="form-group">
-      <label>Nom</label>
-      <input type="text" id="input-nom">
-    </div>
-
-    <div class="form-group">
-      <label>Prénom</label>
-      <input type="text" id="input-prenom">
-    </div>
-
-    <div class="form-group">
-      <label>Rôle</label>
-      <select id="input-role">
-        <option value="etudiant">Étudiant</option>
-        <option value="tuteur">Tuteur</option>
-      </select>
-    </div>
-
-    <button class="btn-add" onclick="saveCompte()">Enregistrer</button>
-    <button class="btn-delete" onclick="closeModal()">Annuler</button>
-  </div>
-</div>
-
-
-<script>
-
-const ADMIN_PASSWORD = "admin123";
-
-if (localStorage.getItem("adminLogged") !== "true") {
-  const pass = prompt("Mot de passe administrateur :");
-  if (pass !== ADMIN_PASSWORD) {
-    alert("Accès refusé !");
-    window.location.href = "index.html";
-  } else {
-    localStorage.setItem("adminLogged", "true");
-  }
-}
-
-function logout() {
-  localStorage.removeItem("adminLogged");
-  window.location.href = "index.html";
-}
-
-let comptes = JSON.parse(localStorage.getItem("comptes_tuto") || "[]");
-let demandes = JSON.parse(localStorage.getItem("rendezvous") || "[]");
-
-function saveComptes() {
-  localStorage.setItem("comptes_tuto", JSON.stringify(comptes));
-}
-function saveRdv() {
-  localStorage.setItem("rendezvous", JSON.stringify(demandes));
-}
-
-function openTab(tabName) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".content > div").forEach(c => c.classList.add("hidden"));
-  document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add("active");
-  document.getElementById(tabName).classList.remove("hidden");
-
-  if (tabName === "comptes") renderComptes();
-  if (tabName === "rdv") renderRdv();
-}
-
-let editingId = null;
-
-function renderComptes() {
-  const tbody = document.querySelector("#table-comptes tbody");
-  tbody.innerHTML = "";
-
-  comptes.forEach(c => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${c.id}</td>
-      <td>${c.nom}</td>
-      <td>${c.prenom}</td>
-      <td>${c.role === "tuteur" ? "Tuteur" : "Étudiant"}</td>
-      <td class="${c.active ? "status-active" : "status-inactive"}">
-        ${c.active ? "Actif" : "Inactif"}
-      </td>
-      <td>
-        <button class="btn-edit" onclick="editCompte('${c.id}')">Modifier</button>
-        <button class="btn-toggle" onclick="toggleCompte('${c.id}')">
-          ${c.active ? "Désactiver" : "Activer"}
+    <div class="card" style="max-width: 1000px; margin-top: 2rem">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <h1>Administration</h1>
+        <button onclick="logout()" class="btn-delete" style="width: auto">
+          Déconnexion
         </button>
-        <button class="btn-delete" onclick="deleteCompte('${c.id}')">Supprimer</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+      </div>
 
-// Fonction ajouter un compte
-function openAddModal() {
-}
+      <div class="tabs">
+        <div class="tab active" onclick="openTab('comptes')">
+          Comptes utilisateurs
+        </div>
+        <div class="tab" onclick="openTab('rdv')">Rendez-vous</div>
+      </div>
 
-// Fonction modifier un compte
-function editCompte(id) {
-  const c = comptes.find(x => x.id === id);
-  if (!c) return;
-  editingId = id;
-  document.getElementById("modal-title").textContent = "Modifier le compte";
-  document.getElementById("input-id").value = c.id;
-  document.getElementById("input-id").disabled = true;
-  document.getElementById("input-nom").value = c.nom;
-  document.getElementById("input-prenom").value = c.prenom;
-  document.getElementById("input-role").value = c.role;
-  document.getElementById("modal").classList.remove("hidden");
-}
+      <div class="content">
+        <div id="comptes">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 1rem;
+            "
+          >
+            <h2>Gestion des comptes</h2>
+            <button class="btn-add" onclick="openAddModal()">
+              + Ajouter un compte
+            </button>
+          </div>
 
-function saveCompte() {
-  const id = document.getElementById("input-id").value.trim();
-  const nom = document.getElementById("input-nom").value.trim();
-  const prenom = document.getElementById("input-prenom").value.trim();
-  const role = document.getElementById("input-role").value;
+          <div class="table-container">
+            <table id="table-comptes">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nom & Prénom</th>
+                  <th>Rôle</th>
+                  <th>Statut</th>
+                  <th style="text-align: right">Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
 
-  if (!id || !nom || !prenom) return alert("Tous les champs sont requis.");
+        <div id="rdv" class="hidden">
+          <h2>Tous les rendez-vous</h2>
+          <div class="table-container">
+            <table id="table-rdv">
+              <thead>
+                <tr>
+                  <th>Étudiant</th>
+                  <th>Service</th>
+                  <th>Tuteur</th>
+                  <th>Horaire</th>
+                  <th>Statut</th>
+                  <th style="text-align: right">Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="modal" class="modal-overlay hidden">
+        <div class="modal-content">
+          <h3 id="modal-title" style="margin-bottom: 1.5rem">
+            Ajouter un compte
+          </h3>
 
-  if (editingId) {
-    const c = comptes.find(x => x.id === editingId);
-    c.nom = nom;
-    c.prenom = prenom;
-    c.role = role;
-  } else {
-    if (comptes.some(x => x.id === id)) return alert("Cet ID existe déjà !");
-    comptes.push({ id, nom, prenom, role, active: true });
-  }
+          <div class="form-group">
+            <label for="input-id">ID (Matricule)</label>
+            <input type="text" id="input-id" placeholder="ex: etu12345" />
+          </div>
 
-  saveComptes();
-  closeModal();
-  renderComptes();
-}
+          <div class="form-group">
+            <label for="input-nom">Nom</label>
+            <input type="text" id="input-nom" placeholder="Nom de famille" />
+          </div>
 
-function toggleCompte(id) {
-  const c = comptes.find(x => x.id === id);
-  if (c) {
-    c.active = !c.active;
-    saveComptes();
-    renderComptes();
-  }
-}
+          <div class="form-group">
+            <label for="input-prenom">Prénom</label>
+            <input type="text" id="input-prenom" placeholder="Prénom" />
+          </div>
 
-// Supprimer un compte
-function deleteCompte(id) {
-  if (confirm("Supprimer ce compte définitivement ?")) {
-    comptes = comptes.filter(x => x.id !== id);
-    saveComptes();
-    renderComptes();
-  }
-}
+          <div class="form-group">
+            <label for="input-role">Rôle</label>
+            <select id="input-role">
+              <option value="etudiant">Étudiant</option>
+              <option value="tuteur">Tuteur</option>
+            </select>
+          </div>
 
-// === Gestion Rendez-vous ===
-function renderRdv() {
-  const tbody = document.querySelector("#table-rdv tbody");
-  tbody.innerHTML = "";
+          <button class="btn-add" onclick="saveCompte()">Enregistrer</button>
+          <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+        </div>
+      </div>
+    </div>
 
-  demandes.forEach((d, i) => {
-    const statut = d.reponse === null ? "En attente" :
-                   d.reponse === true ? "Accepté" : "Refusé";
-    const couleur = d.reponse === null ? "#ff9800" :
-                    d.reponse === true ? "green" : "red";
+    <script>
+      const ADMIN_PASSWORD = "admin123";
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${d.etudiant}</td>
-      <td>${d.service}</td>
-      <td>${d.tuteur || "-"}</td>
-      <td>${d.debut.replace(/ /g," à ")} → ${d.fin.split(" ")[1]}</td>
-      <td style="color:${couleur};font-weight:bold;">${statut}</td>
-      <td>
-        <button class="btn-delete" onclick="deleteRdv(${i})">Supprimer</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+      if (localStorage.getItem("adminLogged") !== "true") {
+        const pass = prompt("Mot de passe administrateur (admin):");
+        if (pass !== ADMIN_PASSWORD) {
+          alert("Accès refusé !");
+          window.location.href = "index.html";
+        } else {
+          localStorage.setItem("adminLogged", "true");
+        }
+      }
 
-// Supprimer un rendez-vous
-function deleteRdv(index) {
-  if (confirm("Supprimer ce rendez-vous ?")) {
-    demandes.splice(index, 1);
-    saveRdv();
-    renderRdv();
-  }
-}
+      function logout() {
+        localStorage.removeItem("adminLogged");
+        window.location.href = "index.html";
+      }
 
-// Ouvrir modal pour ajouter un compte
-function openAddModal() {
-  editingId = null;
-  document.getElementById("modal-title").textContent = "Ajouter un compte";
+      let comptes = JSON.parse(localStorage.getItem("comptes_tuto") || "[]");
+      let demandes = JSON.parse(localStorage.getItem("rendezvous") || "[]");
+      let editingId = null;
 
-  // Réinitialiser le formulaire
-  document.getElementById("input-id").value = "";
-  document.getElementById("input-nom").value = "";
-  document.getElementById("input-prenom").value = "";
-  document.getElementById("input-role").value = "etudiant";
-  document.getElementById("input-id").disabled = false;
+      renderComptes();
+      renderRdv();
 
-  document.getElementById("modal").classList.remove("hidden");
-}
+      function openTab(tabName) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelector(`.tab[onclick="openTab('${tabName}')"]`)
+          .classList.add("active");
 
-// Fermer modal
-function closeModal() {
-  document.getElementById("modal").classList.add("hidden");
-}
+        document.getElementById("comptes").classList.add("hidden");
+        document.getElementById("rdv").classList.add("hidden");
+        document.getElementById(tabName).classList.remove("hidden");
 
-</script>
+        if (tabName === "comptes") renderComptes();
+        if (tabName === "rdv") renderRdv();
+      }
 
-</body>
+      function renderComptes() {
+        const tbody = document.querySelector("#table-comptes tbody");
+        tbody.innerHTML = "";
+
+        if (comptes.length === 0) {
+          tbody.innerHTML =
+            "<tr><td colspan='5' style='text-align:center'>Aucun compte trouvé.</td></tr>";
+          return;
+        }
+
+        comptes.forEach((c) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${c.id}</strong></td>
+            <td>${c.prenom} ${c.nom}</td>
+            <td><span class="badge ${
+              c.role === "tuteur" ? "badge-accepted" : "badge-pending"
+            }">${c.role}</span></td>
+            <td class="${c.active ? "status-active" : "status-inactive"}">
+                ${c.active ? "Actif" : "Inactif"}
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+                <button class="btn-edit" onclick="editCompte('${
+                  c.id
+                }')">Éditer</button>
+                <button class="btn-toggle" onclick="toggleCompte('${c.id}')">${
+            c.active ? "Désactiver" : "Activer"
+          }</button>
+                <button class="btn-delete" onclick="deleteCompte('${
+                  c.id
+                }')">X</button>
+            </td>
+            `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function renderRdv() {
+        const tbody = document.querySelector("#table-rdv tbody");
+        tbody.innerHTML = "";
+
+        if (demandes.length === 0) {
+          tbody.innerHTML =
+            "<tr><td colspan='6' style='text-align:center'>Aucun rendez-vous trouvé.</td></tr>";
+          return;
+        }
+
+        demandes.forEach((d, i) => {
+          let badgeClass = "badge-pending";
+          let statusText = "En attente";
+
+          if (d.reponse === true) {
+            badgeClass = "badge-accepted";
+            statusText = "Accepté";
+          }
+          if (d.reponse === false) {
+            badgeClass = "badge-refused";
+            statusText = "Refusé";
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${d.etudiant}</td>
+            <td>${d.service}</td>
+            <td>${d.tuteur || "-"}</td>
+            <td>${d.debut}</td>
+            <td><span class="badge ${badgeClass}">${statusText}</span></td>
+            <td style="text-align: right;">
+                <button class="btn-delete" onclick="deleteRdv(${i})">Supprimer</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function saveComptes() {
+        localStorage.setItem("comptes_tuto", JSON.stringify(comptes));
+      }
+
+      function openAddModal() {
+        editingId = null;
+        document.getElementById("modal-title").textContent =
+          "Ajouter un compte";
+        document.getElementById("input-id").value = "";
+        document.getElementById("input-id").disabled = false;
+        document.getElementById("input-nom").value = "";
+        document.getElementById("input-prenom").value = "";
+        document.getElementById("modal").classList.remove("hidden");
+      }
+
+      function editCompte(id) {
+        const c = comptes.find((x) => x.id === id);
+        if (!c) return;
+        editingId = id;
+        document.getElementById("modal-title").textContent =
+          "Modifier le compte";
+        document.getElementById("input-id").value = c.id;
+        document.getElementById("input-id").disabled = true;
+        document.getElementById("input-nom").value = c.nom;
+        document.getElementById("input-prenom").value = c.prenom;
+        document.getElementById("input-role").value = c.role;
+        document.getElementById("modal").classList.remove("hidden");
+      }
+
+      function saveCompte() {
+        const id = document.getElementById("input-id").value.trim();
+        const nom = document.getElementById("input-nom").value.trim();
+        const prenom = document.getElementById("input-prenom").value.trim();
+        const role = document.getElementById("input-role").value;
+
+        if (!id || !nom || !prenom)
+          return alert("Tous les champs sont requis.");
+
+        if (editingId) {
+          const c = comptes.find((x) => x.id === editingId);
+          c.nom = nom;
+          c.prenom = prenom;
+          c.role = role;
+        } else {
+          if (comptes.some((x) => x.id === id))
+            return alert("Cet ID existe déjà !");
+          comptes.push({ id, nom, prenom, role, active: true });
+        }
+
+        saveComptes();
+        closeModal();
+        renderComptes();
+      }
+
+      function toggleCompte(id) {
+        const c = comptes.find((x) => x.id === id);
+        if (c) {
+          c.active = !c.active;
+          saveComptes();
+          renderComptes();
+        }
+      }
+
+      function deleteCompte(id) {
+        if (confirm("Supprimer ce compte définitivement ?")) {
+          comptes = comptes.filter((x) => x.id !== id);
+          saveComptes();
+          renderComptes();
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.add("hidden");
+      }
+
+      function deleteRdv(index) {
+        if (confirm("Supprimer ce rendez-vous ?")) {
+          demandes.splice(index, 1);
+          localStorage.setItem("rendezvous", JSON.stringify(demandes));
+          renderRdv();
+        }
+      }
+    </script>
+  </body>
 </html>

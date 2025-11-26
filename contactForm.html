@@ -3,64 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="images/favicon.png" />
+    <title>Contacter Tuteur</title>
   </head>
-  <body style="text-align: center">
+  <body>
     <header>
       <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
-
       <nav>
+        <a href="/">Acceuil</a>
         <a href="etudiant.html">Prendre un Rendez-vous</a>
         <a href="tuteur.html">Pour les Tuteurs</a>
         <a href="contactForm.html">Contacter un Tuteur</a>
         <a href="admin.html">Pour les Administrateurs</a>
       </nav>
-
     </header>
-    <form id="contactForm" class="contact-form">
+
+    <div class="card">
       <h1>Contacter un tuteur</h1>
-      <p>Besoin d'aide, d'un conseil ou d'un accompagnement personnalisé ? <br>
-         Remplissez le formulaire ci-dessous pour entrer en contact avec l'un de nos tuteurs.
+      <p style="text-align: center; font-size: 0.95rem">
+        Besoin d'aide, d'un conseil ou d'un accompagnement personnalisé ? <br />
+        Remplissez le formulaire ci-dessous.
       </p>
-      <br>
-      <label for="name">Nom complet: </label>
-      <input type="text" id="name" required />
-      <br>
-      <br>
-      <label for="email">Email: </label>
-      <input type="email" id="email" required />
-      <br>
-      <br>
-      <label for="tutor">Tuteur</label>
-      <select id="tutor" required>
-        <option value="">-- Choisir un tuteur --</option>
-        <option value="">Marie Tremblay</option>
-        <option value="">Pierre Gagnon</option>
-        <option value="">Sophie Bouchard</option>
-        <option value="">Jean Pelletier</option>
-        <option value="">Isabelle LeBlanc</option>
-        <option value="">Marc Côté</option>
-      </select>
-      <br>
-      <br>
-      <label for="subject">Sujet: </label>
-      <input type="text" id="subject" required />
-      <br>
-      <br>
-      <label for="message">Message (max 500 caractères)</label>
-      <br>
-      <textarea id="message" maxlength="500" rows="10" cols="40" required></textarea>
-    </form>
-    <br>
-      <!-- Lorsque l'étudiant clique sur envoyer après avoir complété le formulaire la requête 
-           va déclencher un POST pour insérer le message dans la base de donnée -> dans la table (message)
-      -->
-     <button onclick="redirectToConfirmationPage()">Envoyer</button>
-      <script>
-        function redirectToConfirmationPage() {
-            window.location.href = 'confirmationForm.html';
-          }
-      </script>
-    <!-- Utilisation de la base de donnée non nécéssaire alors on continue en statique et on énonce les fonctions et les actions en commentaire-->
+
+      <form id="contactForm" class="contact-form">
+        <label for="name">Nom complet</label>
+        <input type="text" id="name" placeholder="Votre nom" required />
+
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="votre.email@college.ca"
+          required
+        />
+
+        <label for="tutor">Tuteur concerné</label>
+        <select id="tutor" required>
+          <option value="">-- Choisir un tuteur --</option>
+          <option value="Marie Tremblay">Marie Tremblay</option>
+          <option value="Pierre Gagnon">Pierre Gagnon</option>
+          <option value="Sophie Bouchard">Sophie Bouchard</option>
+          <option value="Jean Pelletier">Jean Pelletier</option>
+          <option value="Isabelle LeBlanc">Isabelle LeBlanc</option>
+          <option value="Marc Côté">Marc Côté</option>
+        </select>
+
+        <label for="subject">Sujet</label>
+        <input
+          type="text"
+          id="subject"
+          placeholder="Ex: Problème en Algèbre"
+          required
+        />
+
+        <label for="message">Message (max 500 caractères)</label>
+        <textarea
+          id="message"
+          maxlength="500"
+          placeholder="Décrivez votre besoin..."
+          required
+        ></textarea>
+      </form>
+
+      <button onclick="redirectToConfirmationPage()">Envoyer le message</button>
+    </div>
+    <script>
+      function redirectToConfirmationPage() {
+        // Optional: Simple validation check
+        const form = document.getElementById("contactForm");
+        if (form.checkValidity()) {
+          window.location.href = "confirmationForm.html";
+        } else {
+          // This triggers the browser's default validation messages
+          form.reportValidity();
+        }
+      }
+    </script>
   </body>
 </html>

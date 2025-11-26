@@ -1,142 +1,118 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Historique des rendez-vous - Tuto+</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-      margin: 0;
-    }
-    .container {
-      max-width: 700px;
-      margin: 40px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #1976d2;
-    }
-    .back-btn {
-      display: inline-block;
-      margin: 20px 0;
-      padding: 10px 16px;
-      background: #555;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-    .back-btn:hover { background: #333; }
-    .rendezvous-card {
-      background: #f9f9f9;
-      padding: 16px;
-      margin: 16px 0;
-      border-radius: 10px;
-      border-left: 5px solid #1976d2;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .status {
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.9em;
-      display: inline-block;
-      margin-top: 8px;
-    }
-    .status-pending { background: #fff3cd; color: #856404; }
-    .status-accepted { background: #d4edda; color: #155724; }
-    .status-refused { background: #f8d7da; color: #721c24; }
-    .no-data {
-      text-align: center;
-      color: #666;
-      font-style: italic;
-      padding: 40px;
-    }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="images/favicon.png" />
+    <title>Historique des rendez-vous - Tuto+</title>
+  </head>
+  <body>
+    <header>
+      <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
+      <nav>
+        <a href="/">Acceuil</a>
+        <a href="etudiant.html">Prendre un Rendez-vous</a>
+        <a href="tuteur.html">Pour les Tuteurs</a>
+        <a href="contactForm.html">Contacter un Tuteur</a>
+        <a href="admin.html">Pour les Administrateurs</a>
+      </nav>
+    </header>
+    <div class="container">
+      <h1>Historique de vos rendez-vous</h1>
 
-<div class="container">
-  <h1>Historique de vos rendez-vous</h1>
-  
-  <div id="student-info" style="text-align:center; margin-bottom: 20px; color: #555;"></div>
+      <div
+        id="student-info"
+        style="text-align: center; margin-bottom: 20px; color: #555"
+      ></div>
 
-  <div id="historique-list"></div>
+      <div id="historique-list"></div>
 
-  <div id="no-data" class="no-data">
-    Vous n'avez encore effectué aucune demande de rendez-vous.
-  </div>
+      <div id="no-data" class="no-data">
+        Vous n'avez encore effectué aucune demande de rendez-vous.
+      </div>
 
-  <div style="text-align: center; margin-top: 30px;">
-    <a href="etudiant.html" class="back-btn">Retour à la prise de rendez-vous</a>
-  </div>
-</div>
+      <div style="text-align: center; margin-top: 30px">
+        <a href="etudiant.html" class="back-btn"
+          >Retour à la prise de rendez-vous</a
+        >
+      </div>
+    </div>
 
-<script>
-  const currentStudent = localStorage.getItem("currentStudent");
+    <script>
+      const currentStudent = localStorage.getItem("currentStudent");
 
-  document.getElementById("student-info").textContent = `Étudiant : ${currentStudent}`;
+      document.getElementById(
+        "student-info"
+      ).textContent = `Étudiant : ${currentStudent}`;
 
-  let demandes = [];
+      let demandes = [];
 
-  const stored = localStorage.getItem("rendezvous");
-  if (stored) {
-    try {
-      demandes = JSON.parse(stored);
-    } catch(e) {
-      demandes = [];
-    }
-  }
-
-  const mesDemandes = demandes
-    .filter(d => d.etudiant === currentStudent)
-    .sort((a, b) => new Date(b.dateDemande || b.debut) - new Date(a.dateDemande || a.debut));
-
-  const liste = document.getElementById("historique-list");
-  const noData = document.getElementById("no-data");
-
-  if (mesDemandes.length === 0) {
-    noData.style.display = "block";
-    liste.style.display = "none";
-  } else {
-    noData.style.display = "none";
-    liste.style.display = "block";
-
-    mesDemandes.forEach(d => {
-      const debutFormat = d.debut.replace(/(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/, "$1 à $2");
-      const dateDemande = d.dateDemande ? new Date(d.dateDemande).toLocaleDateString('fr-CA') : "Date inconnue";
-
-      let statusText = "En attente";
-      let statusClass = "status-pending";
-
-      if (d.reponse === true) {
-        statusText = "Accepté";
-        statusClass = "status-accepted";
-      } else if (d.reponse === false) {
-        statusText = "Refusé";
-        statusClass = "status-refused";
+      const stored = localStorage.getItem("rendezvous");
+      if (stored) {
+        try {
+          demandes = JSON.parse(stored);
+        } catch (e) {
+          demandes = [];
+        }
       }
 
-      const card = document.createElement("div");
-      card.className = "rendezvous-card";
-      card.innerHTML = `
+      const mesDemandes = demandes
+        .filter((d) => d.etudiant === currentStudent)
+        .sort(
+          (a, b) =>
+            new Date(b.dateDemande || b.debut) -
+            new Date(a.dateDemande || a.debut)
+        );
+
+      const liste = document.getElementById("historique-list");
+      const noData = document.getElementById("no-data");
+
+      if (mesDemandes.length === 0) {
+        noData.style.display = "block";
+        liste.style.display = "none";
+      } else {
+        noData.style.display = "none";
+        liste.style.display = "block";
+
+        mesDemandes.forEach((d) => {
+          const debutFormat = d.debut.replace(
+            /(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})/,
+            "$1 à $2"
+          );
+          const dateDemande = d.dateDemande
+            ? new Date(d.dateDemande).toLocaleDateString("fr-CA")
+            : "Date inconnue";
+
+          let statusText = "En attente";
+          let statusClass = "status-pending";
+
+          if (d.reponse === true) {
+            statusText = "Accepté";
+            statusClass = "status-accepted";
+          } else if (d.reponse === false) {
+            statusText = "Refusé";
+            statusClass = "status-refused";
+          }
+
+          const card = document.createElement("div");
+          card.className = "rendezvous-card";
+          card.innerHTML = `
         <strong>${d.service}</strong><br>
         Tuteur : ${d.tuteur || "Non spécifié"}<br>
         Date et heure : ${debutFormat} → ${d.fin.split(" ")[1]}<br>
         Demande faite le : ${dateDemande}<br>
         <span class="status ${statusClass}">${statusText}</span>
       `;
-      liste.appendChild(card);
-    });
-  }
-</script>
-
-</body>
+          liste.appendChild(card);
+        });
+      }
+    </script>
+  </body>
 </html>

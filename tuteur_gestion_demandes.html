@@ -2,18 +2,50 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="images/favicon.png" />
     <title>Gestion des demandes</title>
   </head>
   <body>
-    <br />
-    <h1 style="text-align: center">Gestion des demandes</h1>
+    <header>
+      <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
+      <nav>
+        <a href="/">Acceuil</a>
+        <a href="etudiant.html">Prendre un Rendez-vous</a>
+        <a href="tuteur.html">Pour les Tuteurs</a>
+        <a href="contactForm.html">Contacter un Tuteur</a>
+        <a href="admin.html">Pour les Administrateurs</a>
+      </nav>
+    </header>
 
-    <div id="demandes-container"></div>
-    <br>
-    <div style="display:flex; justify-content:center;">
-    <button id="btn-retour" type="button" onclick="window.location.href='tuteur.html'">Retour</button>
+    <div class="card">
+      <h1 style="text-align: center">Gestion des demandes</h1>
+
+      <div id="demandes-container"></div>
+
+      <div style="margin-top: 2rem">
+        <button
+          id="btn-retour"
+          type="button"
+          class="btn-toggle"
+          onclick="window.location.href='tuteur.html'"
+          style="
+            background-color: transparent;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+          "
+        >
+          ← Retour
+        </button>
+      </div>
     </div>
-  </div>
     <script>
       let demandes = [];
 
@@ -32,31 +64,32 @@
         container.innerHTML = "";
 
         if (demandes.length === 0) {
-          const p = document.createElement("p");
-          p.textContent =
-            "Il n'y a pas de demandes de rendez-vous pour le moment.";
-          p.style.textAlign = "center";
-          container.appendChild(p);
+          container.innerHTML = `<p style="text-align: center; color: #6b7280;">Il n'y a pas de demandes de rendez-vous pour le moment.</p>`;
           return;
         }
 
         demandes.forEach((d, index) => {
           const div = document.createElement("div");
+          div.className = "rendezvous-card";
 
           let contenu = `
-      <p>Étudiant : ${d.etudiant}</p>
-      <p>Service : ${d.service}</p>
-      <p>Début : ${d.debut}</p>
-      <p>Fin : ${d.fin}</p>
-    `;
+            <h3 style="color: var(--primary-color); margin-bottom:0.5rem;">${
+              d.service
+            }</h3>
+            <p><strong>Étudiant :</strong> ${d.etudiant}</p>
+            <p><strong>Début :</strong> ${d.debut.replace("T", " ")}</p>
+            <p><strong>Fin :</strong> ${d.fin.replace("T", " ")}</p>
+          `;
 
           if (d.reponse) {
-            contenu += `<p>Statut : ${d.reponse}</p>`;
+            contenu += `<div class="badge badge-accepted">Statut : ${d.reponse}</div>`;
           } else {
             contenu += `
-        <button class="accepter">Accepter</button>
-        <button class="refuser">Refuser</button>
-      `;
+             <div class="btn-group">
+                <button class="btn-success accepter">Accepter</button>
+                <button class="btn-danger refuser">Refuser</button>
+             </div>
+            `;
           }
 
           div.innerHTML = contenu;
@@ -70,13 +103,10 @@
               .querySelector(".refuser")
               .addEventListener("click", () => repondre(index, false));
           }
-
-          container.appendChild(document.createElement("hr"));
         });
       }
 
-        function repondre(index, accepte) {
-        //Cette section va avertir à l'étudiant que la demande à été répondu
+      function repondre(index, accepte) {
         alert(
           "L'étudiant a été notifié : demande " +
             (accepte ? "acceptée" : "refusée")

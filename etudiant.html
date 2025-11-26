@@ -1,178 +1,194 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-<meta charset="UTF-8" />
-<title>Étudiant – Demande de rendez-vous</title>
-<link rel="stylesheet" href="style.css">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="images/favicon.png" />
+    <title>Étudiant – Demande de rendez-vous</title>
+  </head>
 
-<style>
-  body { font-family: Arial, sans-serif; background:#f5f5f5; padding:20px; }
-  .card { background:white; padding:20px; border-radius:12px; max-width:600px; margin:auto; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-  h1,h2 { margin-top:0; }
-  label{font-weight:bold; display:block; margin-top:12px;}
-  select,input,button{padding:8px; margin-top:5px; width:100%; border-radius:6px; border:1px solid #ccc;}
-  button{ cursor:pointer; background:#1976d2; border:0; color:white; font-weight:bold; margin-top:18px;}
-  .hidden{display:none;}
-  .rendezvous-card{background:white;padding:15px;border-radius:10px;margin-top:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-</style>
-</head>
-
-<body>
-  <header>
+  <body>
+    <header>
       <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
-
       <nav>
+        <a href="/">Acceuil</a>
         <a href="etudiant.html">Prendre un Rendez-vous</a>
         <a href="tuteur.html">Pour les Tuteurs</a>
         <a href="contactForm.html">Contacter un Tuteur</a>
         <a href="admin.html">Pour les Administrateurs</a>
       </nav>
-
     </header>
+    <div class="card" id="login-card">
+      <h1>Connexion Étudiant</h1>
+      <label for="student_id">Identifiant étudiant :</label>
+      <input type="text" id="student_id" placeholder="ex: etu1234" />
+      <button onclick="login()">Se connecter</button>
+    </div>
 
-<div class="card" id="login-card">
-  <h1>Connexion Étudiant</h1>
-  <label for="student_id">Identifiant étudiant :</label>
-  <input type="text" id="student_id" placeholder="ex: etu1234" />
-  <button onclick="login()">Se connecter</button>
-</div>
+    <div class="card hidden" id="app-card">
+      <h1>Demande de rendez-vous</h1>
 
-<div class="card hidden" id="app-card">
-  <h1>Demande de rendez-vous</h1>
+      <label for="service">Choisir un service :</label>
+      <select id="service" onchange="loadSlots()">
+        <option value="">-- Sélectionner un service --</option>
+      </select>
 
-  <label for="service">Choisir un service :</label>
-  <select id="service" onchange="loadSlots()">
-    <option value="">-- Sélectionner un service --</option>
-  </select>
+      <label for="slot">Créneau horaire disponible :</label>
+      <select id="slot">
+        <option value="">-- Sélectionner un créneau --</option>
+      </select>
 
-  <label for="slot">Créneau horaire disponible :</label>
-  <select id="slot">
-    <option value="">-- Sélectionner un créneau --</option>
-  </select>
+      <button onclick="prendreRdv()">Prendre rendez-vous</button>
+      <button onclick="window.location.href='historique.html'">
+        Voir mon historique de rendez-vous
+      </button>
 
-  <button onclick="prendreRdv()">Prendre rendez-vous</button>
-  <button onclick="window.location.href='historique.html'">Voir mon historique de rendez-vous
-</button>
+      <div id="rdv-list"></div>
+    </div>
 
-  <div id="rdv-list"></div>
-</div>
+    <script>
+      const SERVICES = [
+        {
+          id: "s1",
+          nom: "Aide en Mathématiques",
+          tuteur: "Alice Martin",
+          slots: ["2025-05-12 10:00", "2025-05-12 13:00", "2025-05-13 09:00"],
+        },
+        {
+          id: "s2",
+          nom: "Support Programmation",
+          tuteur: "Ben Benjamin",
+          slots: ["2025-05-14 11:00", "2025-05-14 15:00"],
+        },
+        {
+          id: "s3",
+          nom: "Rédaction et Français",
+          tuteur: "Line Parent",
+          slots: ["2025-05-12 14:00", "2025-05-15 10:30"],
+        },
+      ];
 
-<script>
-const SERVICES = [
-  { id: "s1", nom: "Aide en Mathématiques", tuteur: "Alice Martin", slots: ["2025-05-12 10:00","2025-05-12 13:00","2025-05-13 09:00"] },
-  { id: "s2", nom: "Support Programmation", tuteur: "Ben Benjamin", slots: ["2025-05-14 11:00","2025-05-14 15:00"] },
-  { id: "s3", nom: "Rédaction et Français", tuteur: "Line Parent", slots: ["2025-05-12 14:00","2025-05-15 10:30"] }
-];
+      let student = null;
+      let demandes = [];
 
-let student = null;
-let demandes = [];
+      function chargerLocalStorage() {
+        const stored = localStorage.getItem("rendezvous");
+        if (stored) {
+          demandes = JSON.parse(stored);
+        }
+      }
 
-function chargerLocalStorage() {
-  const stored = localStorage.getItem('rendezvous');
-  if (stored) {
-    demandes = JSON.parse(stored);
-  }
-}
+      function sauvegarderLocalStorage() {
+        localStorage.setItem("rendezvous", JSON.stringify(demandes));
+      }
 
-function sauvegarderLocalStorage() {
-  localStorage.setItem('rendezvous', JSON.stringify(demandes));
-}
+      function login() {
+        const id = document.getElementById("student_id").value.trim();
+        if (!id) return alert("Veuillez entrer votre identifiant.");
 
-function login() {
-  const id = document.getElementById("student_id").value.trim();
-  if (!id) return alert("Veuillez entrer votre identifiant.");
+        student = id;
+        localStorage.setItem("currentStudent", student);
 
-  student = id;
-  localStorage.setItem("currentStudent", student);
+        document.getElementById("login-card").classList.add("hidden");
+        document.getElementById("app-card").classList.remove("hidden");
 
-  document.getElementById("login-card").classList.add("hidden");
-  document.getElementById("app-card").classList.remove("hidden");
+        remplirServices();
+        chargerLocalStorage();
+        afficherDemandes();
+      }
 
-  remplirServices();
-  chargerLocalStorage();
-  afficherDemandes();
-}
+      function remplirServices() {
+        const select = document.getElementById("service");
+        select.innerHTML = `<option value="">-- Sélectionner un service --</option>`;
 
-function remplirServices() {
-  const select = document.getElementById("service");
-  select.innerHTML = `<option value="">-- Sélectionner un service --</option>`;
+        SERVICES.forEach((s) => {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = `${s.nom} (Tuteur : ${s.tuteur})`;
+          select.appendChild(opt);
+        });
+      }
 
-  SERVICES.forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s.id;
-    opt.textContent = `${s.nom} (Tuteur : ${s.tuteur})`;
-    select.appendChild(opt);
-  });
-}
+      function ajouterHeureFin(dateStr, dureeMinutes = 60) {
+        const d = new Date(dateStr.replace(" ", "T"));
+        d.setMinutes(d.getMinutes() + dureeMinutes);
+        return d.toISOString().slice(0, 16).replace("T", " ");
+      }
 
-function ajouterHeureFin(dateStr, dureeMinutes = 60) {
-  const d = new Date(dateStr.replace(" ", "T"));
-  d.setMinutes(d.getMinutes() + dureeMinutes);
-  return d.toISOString().slice(0, 16).replace("T", " ");
-}
+      function loadSlots() {
+        const id = document.getElementById("service").value;
+        const slotSelect = document.getElementById("slot");
 
-function loadSlots() {
-  const id = document.getElementById("service").value;
-  const slotSelect = document.getElementById("slot");
+        slotSelect.innerHTML = `<option value="">-- Sélectionner un créneau --</option>`;
 
-  slotSelect.innerHTML = `<option value="">-- Sélectionner un créneau --</option>`;
+        if (!id) return;
 
-  if (!id) return;
+        const srv = SERVICES.find((s) => s.id === id);
 
-  const srv = SERVICES.find(s => s.id === id);
+        srv.slots.forEach((debut) => {
+          const fin = ajouterHeureFin(debut, 60);
 
-  srv.slots.forEach(debut => {
-    const fin = ajouterHeureFin(debut, 60);
+          const opt = document.createElement("option");
+          opt.value = `${debut}||${fin}`;
+          opt.textContent = `${debut.replace(/ /g, " à ")} → ${
+            fin.split(" ")[1]
+          }`;
+          slotSelect.appendChild(opt);
+        });
+      }
 
-    const opt = document.createElement("option");
-    opt.value = `${debut}||${fin}`;
-    opt.textContent = `${debut.replace(/ /g," à ")} → ${fin.split(" ")[1]}`;
-    slotSelect.appendChild(opt);
-  });
-}
+      function prendreRdv() {
+        const service = document.getElementById("service").value;
+        const slotVal = document.getElementById("slot").value;
 
-function prendreRdv() {
-  const service = document.getElementById("service").value;
-  const slotVal = document.getElementById("slot").value;
+        if (!service || !slotVal)
+          return alert("Veuillez choisir un service et un créneau.");
 
-  if (!service || !slotVal) return alert("Veuillez choisir un service et un créneau.");
+        const [debut, fin] = slotVal.split("||");
+        const srv = SERVICES.find((s) => s.id === service);
 
-  const [debut, fin] = slotVal.split("||");
-  const srv = SERVICES.find(s => s.id === service);
+        const demande = {
+          etudiant: student,
+          service: srv.nom,
+          tuteur: srv.tuteur,
+          debut,
+          fin,
+        };
 
-  const demande = { etudiant: student, service: srv.nom, tuteur: srv.tuteur, debut, fin };
+        demandes.push(demande);
+        sauvegarderLocalStorage();
+        afficherDemandes();
 
-  demandes.push(demande);
-  sauvegarderLocalStorage();
-  afficherDemandes();
+        alert("Rendez-vous confirmé !");
+      }
 
-  alert("Rendez-vous confirmé !");
-}
+      function afficherDemandes() {
+        const list = document.getElementById("rdv-list");
+        list.innerHTML = "";
 
-function afficherDemandes() {
-  const list = document.getElementById("rdv-list");
-  list.innerHTML = "";
+        const mesDemandes = demandes.filter((d) => d.etudiant === student);
 
-  const mesDemandes = demandes.filter(d => d.etudiant === student);
-
-  mesDemandes.forEach(d => {
-    const card = document.createElement("div");
-    card.className = "rendezvous-card";
-    card.innerHTML = `
+        mesDemandes.forEach((d) => {
+          const card = document.createElement("div");
+          card.className = "rendezvous-card";
+          card.innerHTML = `
       <h3>Rendez-vous confirmé</h3>
       <p><strong>Service :</strong> ${d.service}</p>
       <p><strong>Tuteur :</strong> ${d.tuteur}</p>
-      <p><strong>Début :</strong> ${d.debut.replace(/ /g," à ")}</p>
-      <p><strong>Fin :</strong> ${d.fin.replace(/ /g," à ")}</p>
+      <p><strong>Début :</strong> ${d.debut.replace(/ /g, " à ")}</p>
+      <p><strong>Fin :</strong> ${d.fin.replace(/ /g, " à ")}</p>
       <p><strong>Étudiant :</strong> ${d.etudiant}</p>
     `;
-    list.appendChild(card);
-  });
-}
-
-
-</script>
-
-</body>
+          list.appendChild(card);
+        });
+      }
+    </script>
+  </body>
 </html>

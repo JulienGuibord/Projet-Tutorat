@@ -3,31 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="images/favicon.png" />
+
     <title>Confirmation</title>
   </head>
   <body>
-    <br />
-    <h1 style="text-align: center">Votre message à été envoyé, merci!</h1>
-    <p style="text-align: center">
-      Votre tuteur vous répondra dans les plus brefs délais afin de vous guider
-      et vous accompagner dans votre apprentissage.
-    </p>
-    <br>
-    <p id="redirect-message" style="text-align: center">Vous serez automatiquement redirigé vers l'accueil dans 10 secondes...</p>
-
+    <header>
+      <img src="images/logo.jpg" alt="logo ahuntsic" width="200" />
+      <nav>
+        <a href="/">Acceuil</a>
+        <a href="etudiant.html">Prendre un Rendez-vous</a>
+        <a href="tuteur.html">Pour les Tuteurs</a>
+        <a href="contactForm.html">Contacter un Tuteur</a>
+        <a href="admin.html">Pour les Administrateurs</a>
+      </nav>
+    </header>
+    <div class="card" style="text-align: center; margin-top: 10vh">
+      <h1>Votre message a été envoyé, merci!</h1>
+      <p>
+        Votre tuteur vous répondra dans les plus brefs délais afin de vous
+        guider et vous accompagner dans votre apprentissage.
+      </p>
+      <br />
+      <p id="redirect-message">
+        Vous serez automatiquement redirigé vers l'accueil dans 10 secondes...
+      </p>
+    </div>
     <script>
-       let seconds = 10;
-    const message = document.getElementById('redirect-message');
-    const countdown = setInterval(() => {
-      seconds--;
-      if (seconds > -1) {
-        message.textContent = `Vous serez automatiquement redirigé vers l'accueil dans ${seconds} secondes...`;
-      } else {
-        clearInterval(countdown);
-        window.location.href = 'index.html';
-      }
-    }, 1000);
+      let seconds = 10;
+      const message = document.getElementById("redirect-message");
+      const countdown = setInterval(() => {
+        seconds--;
+        if (seconds > -1) {
+          message.textContent = `Vous serez automatiquement redirigé vers l'accueil dans ${seconds} secondes...`;
+        } else {
+          clearInterval(countdown);
+          window.location.href = "index.html";
+        }
+      }, 1000);
     </script>
   </body>
 </html>
-<!-- Cette page confirme que le message à été enregistré dans la base de donnée et affiche à l'étudiant qu'il sera redirigé vers la page d'accueil. -->
